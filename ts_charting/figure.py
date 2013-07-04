@@ -67,7 +67,8 @@ class Figure(object):
         if self.ax is None:
             print('NO AX set')
             return
-        self.figure.autofmt_xdate()
+        self.figure.tight_layout()
+        plt.xticks(rotation=30, ha='right')
         self.grapher.plot(name, series, index, fillna, **kwargs)
 
     def plot_markers(self, name, series, yvalues=None, xindex=None, **kwargs):
