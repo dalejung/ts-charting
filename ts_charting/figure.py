@@ -33,11 +33,11 @@ class Figure(object):
     def init_ax(self, axnum, sharex=None, skip_na=None):
         if skip_na is None:
             skip_na = self.skip_na
-        shared_df = None
+        shared_index = None
         if type(sharex) == int:
-            shared_df = self.graphers[sharex].df
+            shared_index = self.graphers[sharex].index
         ax = plt.subplot(self.rows, self.cols, axnum)
-        self.graphers[axnum] = Grapher(ax, skip_na, sharex=shared_df) 
+        self.graphers[axnum] = Grapher(ax, skip_na, sharex=shared_index) 
 
     def set_ax(self, axnum, sharex=None, skip_na=None):
         if self.get_ax(axnum) is None:
@@ -52,14 +52,14 @@ class Figure(object):
         left = []
         right = []
         for grapher in self.graphers.values():
-            if grapher.df is None:
+            if grapher.index is None:
                 continue
             l, r = grapher.ax.get_xlim()
             left.append(l)
             right.append(r)
 
         for grapher in self.graphers.values():
-            if grapher.df is None:
+            if grapher.index is None:
                 continue
             grapher.ax.set_xlim(min(left), max(right)) 
 
@@ -87,9 +87,14 @@ class Figure(object):
         self.ax = None
         self.set_ax(axnum)
 
+    def __getattr__(self, name):
+        if hasattr(self.grapher, name):
+            return getattr(self.grapher, name)
+        raise AttributeError()
+
 class Grapher(object):
     def __init__(self, ax, skip_na=True, sharex=None):
-        self.df = None
+        self.index = None
         self.formatter = None
         self.ax = ax
         self.skip_na = skip_na
@@ -102,7 +107,7 @@ class Grapher(object):
         return self.yaxes.get('right', None)
 
     def is_datetime(self):
-        return self.df.index.inferred_type in ('datetime', 'date', 'datetime64')
+        return self.index.inferred_type in ('datetime', 'date', 'datetime64')
 
     def find_ax(self, secondary_y, kwargs):
         """
@@ -133,15 +138,18 @@ class Grapher(object):
             # override style_dict
             kwargs = dict(style_dict.items() + kwargs.items())
 
-        if self.sharex is not None:
-            series = series.reindex(self.sharex.index, method=fillna)
+        if np.isscalar(series):
+            series = pd.Series(series, self.index)
 
-        if self.df is None:
-            self.df = pd.DataFrame(index=series.index)
+        if self.sharex is not None:
+            series = series.reindex(self.sharex, method=fillna)
+
+        if self.index is None:
+            self.index = series.index
         
         is_datetime = self.is_datetime()
         if is_datetime:
-            self.setup_datetime(self.df.index)
+            self.setup_datetime(self.index)
 
         # Previous we were using DataFrame.setitem to implicitly reindex
         # and then fillna later. This only works if the original series
@@ -150,18 +158,17 @@ class Grapher(object):
         # Ran into this when plotting daily data that had no normalized (midnight)
         # times. 
         if not np.isscalar(series):
-            series = series.reindex(self.df.index, method=fillna)
-        self.df[name] = series
+            series = series.reindex(self.index, method=fillna)
 
-        plot_series = self.df[name]
+        plot_series = series
 
         if name is not None:
             kwargs['label'] = name
 
-        xax = self.df[name].index
+        xax = self.index
         if self.skip_na and is_datetime:
-            xax = np.arange(len(self.df))
-            self.formatter.index = self.df.index
+            xax = np.arange(len(self.index))
+            self.formatter.index = self.index
         
         ax = self.find_ax(secondary_y, kwargs)
         ax.plot(xax, plot_series, **kwargs)
@@ -173,7 +180,7 @@ class Grapher(object):
         if is_datetime: 
             # plot empty space for leading NaN and trailing NaN
             # not sure if I should only call this for is_datetime
-            plt.xlim(0, len(self.df.index)-1)
+            plt.xlim(0, len(self.index)-1)
 
     def consolidate_legend(self):
         """
@@ -226,23 +233,14 @@ class Grapher(object):
             self.formatter.set_formatter(self.ax)
 
     def set_index(self, index):
-        if self.df is not None:
-            raise Exception("Cannot set index if df already exists")
-        df = pd.DataFrame(index=index)
-        self.df = df
+        if self.index is not None:
+            raise Exception("Cannot set index if index already exists")
+        self.index = index
 
     def set_formatter(self):
         """ quick call to reset locator/formatter when lost. i.e. boxplot """
         if self.formatter:
             self.formatter.set_formatter(self.ax)
-
-    def add_data(self, data):
-        if self.df is None:
-            self.df = data
-        else: 
-            # merge ohlc data
-            for k,v in data.iterkv():
-                self.df[k] = v
 
     def plot_markers(self, name, series, yvalues=None, xindex=None, **kwargs):
         if yvalues is not None:
@@ -259,8 +257,9 @@ class Grapher(object):
 
         self.plot(name, series, **props)
 
-    def plot_surface(self, df, *args, **kwargs):
-        pass
+    def line(self, val, *args, **kwargs):
+        """ print horizontal line """
+        self.plot(None, val, *args, **kwargs)
 
 def process_signal(series, source):
     """

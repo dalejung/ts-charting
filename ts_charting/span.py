@@ -14,21 +14,21 @@ def highlight_span(start=None, end=None, color='g', alpha=0.5, grapher=None):
     if grapher is None:
         fig = charting.gcf()
         grapher = fig.grapher
-    df = grapher.df
+    index = grapher.index
 
-    if not df:
+    if index is None:
         raise Exception("grapher/ax has no plots on it. Can only highlight populated ax")
 
     if start is None:
         start = 0
     if end is None:
-        end = len(df.index) 
+        end = len(index) 
 
     # convert from object/string to pos-index
     if not isinstance(start, int):
-        start = df.index.get_loc(start) 
+        start = index.get_loc(start) 
     if not isinstance(end, int):
-        end = df.index.get_loc(end) 
+        end = index.get_loc(end) 
     
     grapher.ax.axvspan(start, end, color=color, alpha=alpha)
 

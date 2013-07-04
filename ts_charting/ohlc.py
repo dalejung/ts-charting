@@ -73,11 +73,13 @@ class OHLCGrapher(object):
         data['low'] = low
         data['close'] = close
         df = pd.DataFrame(data, index=index)
-        self.add_data(df)
+
+        if self.index is None:
+            self.index = index
 
         # grab merged data
-        xax = np.arange(len(self.df.index))
-        quotes = izip(xax, self.df['open'], self.df['close'], self.df['high'], self.df['low'])
+        xax = np.arange(len(self.index))
+        quotes = izip(xax, df['open'], df['close'], df['high'], df['low'])
 
         ax = self.find_ax(secondary_y, kwargs)
 
