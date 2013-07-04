@@ -13,3 +13,4 @@ Example Notebooks
 * Multiple subplot
 * Multiple y-axis per plot with splines
 * Aligning x-axis with sharex
+* Highlighting horizontal spans
