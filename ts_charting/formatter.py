@@ -1,6 +1,7 @@
 import math
 
 import numpy as np
+import pandas as pd
 import matplotlib.ticker as ticker
 from pandas import datetools, DatetimeIndex
 from pandas.tseries.resample import _get_range_edges
@@ -13,19 +14,39 @@ class TimestampLocator(ticker.Locator):
     index plotting; ie the axis is 0, len(data).  This is mainly
     useful for x ticks.
     """
-    def __init__(self, index, min_ticks=5):
+    def __init__(self, index, freq=None, xticks=None, min_ticks=5):
         """
         place ticks on the i-th data points where (i-offset)%base==0
 
         Parameters
         ----------
         index : DatetimeIndex
+        freq : pd.Offset (optional)
+            Fixed frequency
+        xticks : pd.DateTimeIndex or bool array
+            Either an Index of datetimes representing ticks or a boolean
+            array where True denotes a tick
         min_ticks : int
             Minimum number of ticks before jumping up to a lower frequency
+
         """
         self.index = index
         self.min_ticks = min_ticks
-        self.index_type = None
+        self.freq = freq
+        xticks = self._init_xticks(xticks)
+        self.xticks = xticks
+
+    def _init_xticks(self, xticks):
+        if xticks is None:
+            return xticks
+
+        if isinstance(xticks, pd.DatetimeIndex):
+            xticks = pd.Series(1, index=xticks).reindex(self.index, fill_value=0)
+            return xticks.astype(bool)
+
+        if xticks.dtype == bool:
+            return xticks
+        raise Exception("xticks must be DatetimeIndex or bool Series")
 
     def __call__(self):
         'Return the locations of the ticks'
@@ -38,15 +59,28 @@ class TimestampLocator(ticker.Locator):
         vmax = int(math.floor(vmax)) or len(self.index) - 1
         vmax = min(vmax, len(self.index) -1)
 
+        if self.xticks is None:
+            xticks = self._xticks_from_freq(vmin, vmax)
+        else:
+            if self.xticks.dtype != bool:
+                raise Exception("xticks must be a bool series")
+            sub_xticks = self.xticks[vmin:vmax]
+            xticks = np.where(sub_xticks)[0]
+        return xticks
+
+    def _xticks_from_freq(self, vmin, vmax):
         dmin = self.index[vmin] 
         dmax = self.index[vmax] 
 
-        byIndex = self.infer_scale(dmin, dmax)
-        self.index_type = byIndex
+        freq = self.freq
+        if freq is None:
+            freq = self.infer_scale(dmin, dmax)
+
+        self.gen_freq = freq
 
         sub_index = self.index[vmin:vmax]
         
-        xticks = self.generate_xticks(sub_index, byIndex)
+        xticks = self.generate_xticks(sub_index, freq)
         return xticks
 
     def infer_scale(self, dmin, dmax):
@@ -58,50 +92,45 @@ class TimestampLocator(ticker.Locator):
         numWeeks = numDays // 7
         numHours = (numDays * 24.0) + delta.hours
         numMinutes = (numHours * 60.0) + delta.minutes
-        nums = [('AS', numYears), ('M', numMonths), ('W', numWeeks), ('D', numDays), ('H', numHours), 
+        nums = [('AS', numYears), ('MS', numMonths), ('W', numWeeks), ('D', numDays), ('H', numHours), 
                 ('15min', numMinutes)] 
-        byIndex = None
+        freq = None
         for key, num in nums:
             if num > self.min_ticks:
-                byIndex = key
+                freq = key
                 break
 
-        return byIndex
+        return freq
 
     def generate_xticks(self, index, freq):
         """
-            Ticks are really just the bin edges.
+        grab the xticks from 
         """
-        start = index[0]
-        end = index[-1]
-        start, end = _get_range_edges(index, offset=freq, closed='right')
-        ind = DatetimeIndex(start=start, end=end, freq=freq)
-        bins = lib.generate_bins_dt64(index.asi8, ind.asi8, closed='right')
-        bins = np.unique(bins)
-        return bins
+        binlabels = pd.Series(1, index=index).resample(freq).index
+        ticks = index.get_indexer(binlabels)
+        # -1 is a sentinel for out of index range
+        ticks = ticks[ticks != -1]
+        return ticks
 
 class TimestampFormatter(object):
-    def __init__(self, index):
+    def __init__(self, index, locator):
         self.index = index
-        self._locator = None
+        self.locator = locator
 
     def format_date(self, x, pos=None):
         thisind = np.clip(int(x+0.5), 0, len(self.index)-1)
         date = self.index[thisind]
-        index_type = self._locator.index_type
-        if index_type == 'T':
+        gen_freq = self.locator.gen_freq
+        if gen_freq == 'T':
             return date.strftime('%H:%M %m/%d/%y')
-        if index_type == 'H':
+        if gen_freq == 'H':
             return date.strftime('%H:%M %m/%d/%y')
-        if index_type in ['D', 'W']:
+        if gen_freq in ['D', 'W']:
             return date.strftime('%m/%d/%Y')
-        if index_type == 'M':
+        if gen_freq in ['M', 'MS']:
             return date.strftime('%m/%d/%Y')
         return date.strftime('%m/%d/%Y %H:%M')
 
-    def set_formatter(self, ax):
-        self._locator = TimestampLocator(self.index)
-        ax.xaxis.set_major_locator(self._locator)
-        ax.xaxis.set_major_formatter(ticker.FuncFormatter(self.format_date))
-        ax.xaxis.grid(True)
-
+    @property
+    def ticker_func(self):
+        return ticker.FuncFormatter(self.format_date)

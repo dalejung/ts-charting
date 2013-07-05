@@ -5,7 +5,7 @@ import pandas as pd
 from matplotlib import pyplot as plt
 
 import ts_charting.styler as cstyler
-from ts_charting.formatter import TimestampFormatter
+from ts_charting.formatter import TimestampFormatter, TimestampLocator
 
 class Figure(object):
     def __init__(self, rows=1, cols=1, skip_na=True):
@@ -98,6 +98,7 @@ class Grapher(object):
     def __init__(self, ax, skip_na=True, sharex=None):
         self.index = None
         self.formatter = None
+        self.locator = None
         self.ax = ax
         self.skip_na = skip_na
         self.sharex = sharex
@@ -223,8 +224,10 @@ class Grapher(object):
         """
         is_datetime = self.is_datetime()
         if self.formatter is None and self.skip_na and is_datetime:
-            self.formatter = TimestampFormatter(index)
-            self.formatter.set_formatter(self.ax)
+            self.locator = TimestampLocator(index)
+            self.formatter = TimestampFormatter(index, self.locator)
+
+            self.set_formatter()
 
     def set_index(self, index):
         if self.index is not None:
@@ -234,7 +237,11 @@ class Grapher(object):
     def set_formatter(self):
         """ quick call to reset locator/formatter when lost. i.e. boxplot """
         if self.formatter:
-            self.formatter.set_formatter(self.ax)
+            # set to xaxis
+            ax = self.ax
+            ax.xaxis.set_major_locator(self.locator)
+            ax.xaxis.set_major_formatter(self.formatter.ticker_func)
+            ax.xaxis.grid(True)
 
     def plot_markers(self, name, series, yvalues=None, xindex=None, **kwargs):
         if yvalues is not None:

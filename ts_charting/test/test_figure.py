@@ -5,7 +5,6 @@ import pandas as pd
 import pandas.util.testing as tm
 
 import ts_charting.figure as figure
-reload(figure)
 process_series = figure.process_series
 
 class Testprocess_data(TestCase):
