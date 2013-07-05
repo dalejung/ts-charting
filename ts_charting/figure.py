@@ -215,19 +215,25 @@ class Grapher(object):
             self.set_formatter()
         return self.yaxes[name]
 
-    def setup_datetime(self, index):
+    def setup_datetime(self, index=None):
         """
             Setup the int based matplotlib x-index to translate
             to datetime
 
             Separated out here to share between plot and candlestick
         """
+        if index is None:
+            index = self.index
+
         is_datetime = self.is_datetime()
         if self.formatter is None and self.skip_na and is_datetime:
             self.locator = TimestampLocator(index)
             self.formatter = TimestampFormatter(index, self.locator)
-
             self.set_formatter()
+
+        # reupdate index
+        self.locator.index = index
+        self.formatter.index = index
 
     def set_index(self, index):
         if self.index is not None:
@@ -242,6 +248,15 @@ class Grapher(object):
             ax.xaxis.set_major_locator(self.locator)
             ax.xaxis.set_major_formatter(self.formatter.ticker_func)
             ax.xaxis.grid(True)
+
+    def set_xticks(self, xticks):
+        # freq
+        if isinstance(xticks, basestring):
+            self.locator.freq = xticks
+            self.locator.xticks = None
+        else:
+            self.locator.xticks = xticks
+            self.locator.freq = None
 
     def plot_markers(self, name, series, yvalues=None, xindex=None, **kwargs):
         if yvalues is not None:

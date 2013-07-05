@@ -111,7 +111,9 @@ class TimestampLocator(ticker.Locator):
         grab the xticks from 
         """
         binlabels = pd.Series(1, index=index).resample(freq).index
-        ticks = index.get_indexer(binlabels)
+        if binlabels[0] < index[0]:
+            binlabels = binlabels[1:]
+        ticks = index.get_indexer(binlabels, 'bfill')
         # -1 is a sentinel for out of index range
         ticks = ticks[ticks != -1]
         return ticks

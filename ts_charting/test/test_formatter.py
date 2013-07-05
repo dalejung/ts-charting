@@ -7,7 +7,7 @@ import pandas.util.testing as tm
 import ts_charting.formatter as formatter
 reload(formatter)
 
-plot_index = pd.date_range(start="2000-1-1", freq="D", periods=10000)
+plot_index = pd.date_range(start="2000-1-1", freq="B", periods=10000)
 class TestTimestampLocator(TestCase):
 
     def __init__(self, *args, **kwargs):
@@ -23,6 +23,7 @@ class TestTimestampLocator(TestCase):
         """
         inferred freqs are based off of min_ticks
         """
+        plot_index = pd.date_range(start="2000-1-1", freq="B", periods=10000)
         tl = formatter.TimestampLocator(plot_index)
         # showing only the first 10 should give us days
         xticks = tl._process(1, 10)
@@ -45,26 +46,28 @@ class TestTimestampLocator(TestCase):
         Test passing in a fixed freq. This will allow len(xticks) 
         less than min_ticks
         """
+        plot_index = pd.date_range(start="2000-1-1", freq="D", periods=10000)
         tl = formatter.TimestampLocator(plot_index, 'MS')
-        xticks = tl._process(1, 30*3)
-        len(xticks) == 3
+        xticks = tl._process(0, 30*3)
+        assert len(xticks) == 3
 
         tl = formatter.TimestampLocator(plot_index, 'MS')
-        xticks = tl._process(1, 30*6)
-        len(xticks) == 6
+        xticks = tl._process(0, 30*6)
+        assert len(xticks) == 6
 
         tl = formatter.TimestampLocator(plot_index, 'W')
-        xticks = tl._process(1, 10*7)
-        len(xticks) == 10
+        xticks = tl._process(0, 10*7)
+        assert len(xticks) == 10
 
         tl = formatter.TimestampLocator(plot_index, 'AS')
-        xticks = tl._process(1, 10 * 365)
-        len(xticks) == 10
+        xticks = tl._process(0, 10 * 365)
+        assert len(xticks) == 10
 
     def test_bool_xticks(self):
         """
         ability to set ticks with a bool series where True == tick
         """
+        plot_index = pd.date_range(start="2000-1-1", freq="D", periods=10000)
         freq = 'M'
         ds = pd.Series(1, index=plot_index)
         # True when freq market is hit
@@ -99,6 +102,7 @@ class TestTimestampLocator(TestCase):
         """
         The other xticks option is sending in a DatetimeIndex of the dates you want
         """
+        plot_index = pd.date_range(start="2000-1-1", freq="D", periods=10000)
         freq = 'M'
 
         dates = pd.Series(1, index=plot_index).resample(freq).index
