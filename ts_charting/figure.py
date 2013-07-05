@@ -1,6 +1,7 @@
+import collections
+
 import numpy as np
 import pandas as pd
-
 from matplotlib import pyplot as plt
 
 import ts_charting.styler as cstyler
@@ -63,13 +64,13 @@ class Figure(object):
                 continue
             grapher.ax.set_xlim(min(left), max(right)) 
 
-    def plot(self, name, series, index=None, fillna=None, **kwargs):
+    def plot(self, name, series, index=None, method=None, **kwargs):
         if self.ax is None:
             print('NO AX set')
             return
         self.figure.tight_layout()
         plt.xticks(rotation=30, ha='right')
-        self.grapher.plot(name, series, index, fillna, **kwargs)
+        self.grapher.plot(name, series, index, method, **kwargs)
 
     def plot_markers(self, name, series, yvalues=None, xindex=None, **kwargs):
         if self.ax is None:
@@ -128,7 +129,7 @@ class Grapher(object):
             ax = self.get_yax(yax)
         return ax
 
-    def plot(self, name, series, index=None, fillna=None, secondary_y=False, 
+    def plot(self, name, series, index=None, method=None, secondary_y=False, 
              **kwargs):
 
         # use default styler if one is not passed in
@@ -143,7 +144,7 @@ class Grapher(object):
         if self.sharex is not None:
             plot_index = self.sharex
 
-        series = process_series(series, plot_index, series_index=index, fillna=fillna)
+        series = process_series(series, plot_index, series_index=index, method=method)
 
         # first plot, set index
         if self.index is None:
@@ -264,7 +265,7 @@ def process_signal(series, source):
     temp *= source
     return temp
 
-def process_series(series, plot_index, series_index=None, fillna=None):
+def process_series(series, plot_index, series_index=None, method=None):
     """
     Parameters
     ----------
@@ -274,7 +275,7 @@ def process_series(series, plot_index, series_index=None, fillna=None):
         Index of the x-axis. Can be None if subplot has no plots. 
     series_index : pd.DatetimeIndex
         Index of series to be plotted. Only really applicable to iterables/scalars.
-    fillna : {'backfill', 'bfill', 'pad', 'ffill', None}
+    method : {'backfill', 'bfill', 'pad', 'ffill', None}
         Passed along to `reindex`. 
     """
     if series_index is not None:
@@ -282,14 +283,17 @@ def process_series(series, plot_index, series_index=None, fillna=None):
 
     # no need to align index
     if plot_index is None:
-        if hasattr(series, 'index'):
+        if hasattr(series, 'index') and isinstance(series.index, pd.Index):
             return series
         else:
             raise Exception("First plotted series must have an index")
 
     if np.isscalar(series):
-        series = pd.Series(series, plot_index)
+        series = pd.Series(series, index=plot_index)
 
-    series = series.reindex(plot_index, method=fillna)
+    if not isinstance(series, pd.Series) and isinstance(series, collections.Iterable):
+        series = pd.Series(series, index=plot_index)
+
+    series = series.reindex(plot_index, method=method)
 
     return series
