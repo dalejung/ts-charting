@@ -133,6 +133,25 @@ class TestTimestampLocator(TestCase):
         correct = tl._process(3, 900)
         tm.assert_almost_equal(test, correct)
 
+    def test_sparse_index(self):
+        """
+        Make sure that we match the correct dates even if the 
+        freq gives us days not in index.
+        """
+        freq = 'MS'
+        index = pd.date_range(start="2000-1-1", freq="B", periods=1000)
+        tl = formatter.TimestampLocator(plot_index, freq=freq)
+        test = tl._process(0, 900)
+        new_ind = index[test]
+        assert np.all(new_ind.day < 5)
+
+        freq = 'M'
+        index = pd.date_range(start="2000-1-1", freq="B", periods=1000)
+        tl = formatter.TimestampLocator(plot_index, freq=freq)
+        test = tl._process(0, 900)
+        new_ind = index[test]
+        assert np.all(new_ind.day > 25)
+
 if __name__ == '__main__':
     import nose                                                                      
     nose.runmodule(argv=[__file__,'-vs','-x','--pdb', '--pdb-failure'],exit=False)   

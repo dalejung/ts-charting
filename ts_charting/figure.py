@@ -253,9 +253,9 @@ class Grapher(object):
         # freq
         if isinstance(xticks, basestring):
             self.locator.freq = xticks
-            self.locator.xticks = None
+            self.locator.set_xticks(None)
         else:
-            self.locator.xticks = xticks
+            self.locator.set_xticks(xticks)
             self.locator.freq = None
 
     def plot_markers(self, name, series, yvalues=None, xindex=None, **kwargs):

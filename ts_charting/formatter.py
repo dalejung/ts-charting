@@ -33,8 +33,19 @@ class TimestampLocator(ticker.Locator):
         self.index = index
         self.min_ticks = min_ticks
         self.freq = freq
-        xticks = self._init_xticks(xticks)
-        self.xticks = xticks
+        self.set_xticks(xticks)
+
+        self.gen_freq = None
+
+    _xticks = None
+
+    @property
+    def xticks(self):
+        return self._xticks
+
+    def set_xticks(self, value):
+        xticks = self._init_xticks(value)
+        self._xticks = xticks
 
     def _init_xticks(self, xticks):
         if xticks is None:
@@ -108,12 +119,22 @@ class TimestampLocator(ticker.Locator):
 
     def generate_xticks(self, index, freq):
         """
-        grab the xticks from 
+        This is a lot like binning except we done have an extra label
+        containing an unclosed bin. 
         """
-        binlabels = pd.Series(1, index=index).resample(freq).index
+        tg = pd.TimeGrouper(freq)
+        binlabels = pd.Series(1, index=index).groupby(tg).grouper.binlabels
+        # bound between start/end of index.
         if binlabels[0] < index[0]:
             binlabels = binlabels[1:]
-        ticks = index.get_indexer(binlabels, 'bfill')
+        if binlabels[-1] > index[-1]:
+            binlabels = binlabels[:-1]
+
+        if tg.closed == 'left':
+            method = 'bfill'
+        else:
+            method = 'ffill'
+        ticks = index.get_indexer(binlabels, method)
         # -1 is a sentinel for out of index range
         ticks = ticks[ticks != -1]
         return ticks
