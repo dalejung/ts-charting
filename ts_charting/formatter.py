@@ -40,12 +40,16 @@ class TimestampLocator(ticker.Locator):
         if xticks is None:
             return xticks
 
+        if isinstance(xticks, (list, tuple)):
+            xticks = pd.DatetimeIndex(xticks)
+
         if isinstance(xticks, pd.DatetimeIndex):
             xticks = pd.Series(1, index=xticks).reindex(self.index, fill_value=0)
             return xticks.astype(bool)
 
         if xticks.dtype == bool:
             return xticks
+
         raise Exception("xticks must be DatetimeIndex or bool Series")
 
     def __call__(self):

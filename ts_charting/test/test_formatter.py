@@ -99,7 +99,6 @@ class TestTimestampLocator(TestCase):
         """
         The other xticks option is sending in a DatetimeIndex of the dates you want
         """
-        plot_index = pd.date_range(start="2000-1-1", freq="D", periods=10010)
         freq = 'M'
 
         dates = pd.Series(1, index=plot_index).resample(freq).index
@@ -110,10 +109,19 @@ class TestTimestampLocator(TestCase):
         correct = tl._process(3, 900)
         tm.assert_almost_equal(test, correct)
 
-        plot_index = pd.date_range(start="2000-1-1", freq="D", periods=10010)
         freq = 'MS'
-
         dates = pd.Series(1, index=plot_index).resample(freq).index
+        tl = formatter.TimestampLocator(plot_index, xticks=dates)
+        test = tl._process(3, 900)
+
+        tl = formatter.TimestampLocator(plot_index, freq=freq)
+        correct = tl._process(3, 900)
+        tm.assert_almost_equal(test, correct)
+
+        # straight list of dates
+        freq = 'MS'
+        dates = pd.Series(1, index=plot_index).resample(freq).index
+        dates = list(dates)
         tl = formatter.TimestampLocator(plot_index, xticks=dates)
         test = tl._process(3, 900)
 
