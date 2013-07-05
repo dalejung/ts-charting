@@ -139,27 +139,19 @@ class Grapher(object):
             # override style_dict
             kwargs = dict(style_dict.items() + kwargs.items())
 
-        if np.isscalar(series):
-            series = pd.Series(series, self.index)
-
+        plot_index = self.index
         if self.sharex is not None:
-            series = series.reindex(self.sharex, method=fillna)
+            plot_index = self.sharex
 
+        series = process_series(series, plot_index, series_index=index, fillna=fillna)
+
+        # first plot, set index
         if self.index is None:
             self.index = series.index
         
         is_datetime = self.is_datetime()
         if is_datetime:
             self.setup_datetime(self.index)
-
-        # Previous we were using DataFrame.setitem to implicitly reindex
-        # and then fillna later. This only works if the original series
-        # has items that line up in the Grapher.df
-        # We now reindex and fillna in one step. 
-        # Ran into this when plotting daily data that had no normalized (midnight)
-        # times. 
-        if not np.isscalar(series):
-            series = series.reindex(self.index, method=fillna)
 
         plot_series = series
 
@@ -271,3 +263,33 @@ def process_signal(series, source):
     temp, source = temp.align(source, join='left')
     temp *= source
     return temp
+
+def process_series(series, plot_index, series_index=None, fillna=None):
+    """
+    Parameters
+    ----------
+    series : int/float, iterable, pd.Series
+        Data to be plotted.
+    plot_index : pd.DatetimeIndex
+        Index of the x-axis. Can be None if subplot has no plots. 
+    series_index : pd.DatetimeIndex
+        Index of series to be plotted. Only really applicable to iterables/scalars.
+    fillna : {'backfill', 'bfill', 'pad', 'ffill', None}
+        Passed along to `reindex`. 
+    """
+    if series_index is not None:
+        series = pd.Series(series, index=series_index)
+
+    # no need to align index
+    if plot_index is None:
+        if hasattr(series, 'index'):
+            return series
+        else:
+            raise Exception("First plotted series must have an index")
+
+    if np.isscalar(series):
+        series = pd.Series(series, plot_index)
+
+    series = series.reindex(plot_index, method=fillna)
+
+    return series
