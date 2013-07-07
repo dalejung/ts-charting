@@ -93,6 +93,7 @@ class OHLCGrapher(object):
 def ohlc_plot(self, width=0.3, *args, **kwargs):
     fig = gcf()
     fig.ohlc(self, width=width, *args, **kwargs)
+    return fig
 
 pd.DataFrame.ohlc_plot = ohlc_plot
 
