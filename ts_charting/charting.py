@@ -63,14 +63,14 @@ def df_plot(self, *args, **kwargs):
 
 pd.DataFrame.fplot = df_plot
 
-def series_plot_markers(self, label=None, *args, **kwargs):
+def series_plot_markers(self, label=None, yvalues=None, *args, **kwargs):
     """
     Really just an automated way of calling gcf
     """
     label = label or kwargs.get('label')
     label = label and label or self.name
     fig = gcf()
-    fig.plot_markers(str(label), self, *args, **kwargs)
+    fig.plot_markers(str(label), self, yvalues=yvalues, *args, **kwargs)
 
 pd.Series.fplot_markers = series_plot_markers
 
