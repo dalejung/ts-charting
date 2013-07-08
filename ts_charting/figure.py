@@ -64,19 +64,19 @@ class Figure(object):
                 continue
             grapher.ax.set_xlim(min(left), max(right)) 
 
-    def plot(self, name, series, index=None, method=None, **kwargs):
+    def plot(self, label, series, index=None, method=None, **kwargs):
         if self.ax is None:
             print('NO AX set')
             return
         self.figure.tight_layout()
         plt.xticks(rotation=30, ha='right')
-        self.grapher.plot(name, series, index, method, **kwargs)
+        self.grapher.plot(label, series, index, method, **kwargs)
 
-    def plot_markers(self, name, series, yvalues=None, xindex=None, **kwargs):
+    def plot_markers(self, label, series, yvalues=None, xindex=None, **kwargs):
         if self.ax is None:
             print('NO AX set')
             return
-        self.grapher.plot_markers(name, series, yvalues, xindex, **kwargs)
+        self.grapher.plot_markers(label, series, yvalues, xindex, **kwargs)
 
     def clear(self, axnum=None):
         if axnum is None:
@@ -130,7 +130,7 @@ class Grapher(object):
             ax = self.get_yax(yax)
         return ax
 
-    def plot(self, name, series, index=None, method=None, secondary_y=False, 
+    def plot(self, label, series, index=None, method=None, secondary_y=False, 
              **kwargs):
 
         # use default styler if one is not passed in
@@ -157,8 +157,8 @@ class Grapher(object):
 
         plot_series = series
 
-        if name is not None:
-            kwargs['label'] = name
+        if label is not None:
+            kwargs['label'] = label
 
         xax = self.index
         if self.skip_na and is_datetime:
@@ -258,7 +258,7 @@ class Grapher(object):
             self.locator.set_xticks(xticks)
             self.locator.freq = None
 
-    def plot_markers(self, name, series, yvalues=None, xindex=None, **kwargs):
+    def plot_markers(self, label, series, yvalues=None, xindex=None, **kwargs):
         if yvalues is not None:
             series = process_signal(series, yvalues)
         props = {}
@@ -271,7 +271,7 @@ class Grapher(object):
             series = series.copy()
             series.index = xindex
 
-        self.plot(name, series, **props)
+        self.plot(label, series, **props)
 
     def line(self, val, *args, **kwargs):
         """ print horizontal line """
