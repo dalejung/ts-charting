@@ -38,50 +38,53 @@ function build_chart(data) {
 
   var format = d3.time.format("%Y-%m-%d");
 
-    chart.selectAll("text.xrule")
-     .data(x.ticks(10))
-     .enter().append("svg:text")
-     .attr("class", "xrule")
-     .attr("x", x)
-     .attr("y", height - margin)
-     .attr("dy", 20)
-     .attr("text-anchor", "middle")
-    .text(function(d){
-      var date = new Date(index[d] / 1000000 + utc_offset);
-      return format(date);
-    });
+  chart.selectAll("text.xrule")
+   .data(x.ticks(10))
+   .enter().append("svg:text")
+   .attr("class", "xrule")
+   .attr("x", x)
+   .attr("y", height - margin)
+   .attr("dy", 20)
+   .attr("text-anchor", "middle")
+  .text(function(d){
+    var date = new Date(index[d] / 1000000 + utc_offset);
+    return format(date);
+  });
 
-   chart.selectAll("text.yrule")
-    .data(y.ticks(10))
-    .enter().append("svg:text")
-    .attr("class", "yrule")
-    .attr("x", width - margin)
-    .attr("y", y)
-    .attr("dy", 0)
-    .attr("dx", 20)		 
-    .attr("text-anchor", "middle")
-    .text(String);
+ chart.selectAll("text.yrule")
+  .data(y.ticks(10))
+  .enter().append("svg:text")
+  .attr("class", "yrule")
+  .attr("x", width - margin)
+  .attr("y", y)
+  .attr("dy", 0)
+  .attr("dx", 20)		 
+  .attr("text-anchor", "middle")
+  .text(String);
 
-    chart.selectAll("line.x")
-     .data(x.ticks(10))
-     .enter().append("svg:line")
-     .attr("class", "x")
-     .attr("x1", x)
-     .attr("x2", x)
-     .attr("y1", margin)
-     .attr("y2", height - margin)
-     .attr("stroke", "#ccc")
-     .attr("width", 1)
+  chart.selectAll("line.x")
+   .data(x.ticks(10))
+   .enter().append("svg:line")
+   .attr("class", "x")
+   .attr("x1", x)
+   .attr("x2", x)
+   .attr("y1", margin)
+   .attr("y2", height - margin)
+   .attr("stroke", "#ccc")
+   .attr("width", 1)
 
-    chart.selectAll("line.y")
-     .data(y.ticks(10))
-     .enter().append("svg:line")
-     .attr("class", "y")
-     .attr("x1", margin)
-     .attr("x2", width - margin)
-     .attr("y1", y)
-     .attr("y2", y)
-     .attr("stroke", "#ccc");
+  var line_y = chart.selectAll("line.y")
+   .data(y.ticks(10))
+
+   line_y.enter().append("svg:line")
+   .attr("class", "y")
+   .attr("x1", margin)
+   .attr("x2", width - margin)
+   .attr("y1", y)
+   .attr("y2", y)
+   .attr("stroke", "#ccc");
+
+  candles = chart.selectAll("g.candlestick");
 
   candles = chart.selectAll("g.candlestick")
     .data(data).enter().append("svg:g")
@@ -103,9 +106,5 @@ function build_chart(data) {
     .attr("width", bar_width)
           .attr("fill",function(d) { return d[0] > d[3] ? "red" : "green" ;});
 }
-
+var lines = chart.selectAll('rect');
 build_chart(data);
-
-_http_callback = function() {
-  return d3.select('html')[0][0].innerHTML;
-}

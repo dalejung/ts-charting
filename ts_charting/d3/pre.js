@@ -7,7 +7,7 @@ function get_json(file) {
   return JSON.parse(content);
 }
 
-data = get_json('./test.json');
+data = get_json('./dataframe.json');
 
 index = data['index']
 columns = data['columns']
