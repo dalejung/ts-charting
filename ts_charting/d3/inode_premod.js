@@ -1,5 +1,5 @@
-d3 = require('d3');
-fs = require('fs');
+var d3 = require('d3');
+var fs = require('fs');
 
 // replace d3.csv to work with local files
 // TODO. add check for url so those will still work
