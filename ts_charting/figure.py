@@ -8,7 +8,7 @@ import ts_charting.styler as cstyler
 from ts_charting.formatter import TimestampFormatter, TimestampLocator
 
 class Figure(object):
-    def __init__(self, rows=1, cols=1, skip_na=True):
+    def __init__(self, rows=1, cols=1, skip_na=True, warn=True):
         self.figure = plt.figure()
         self.rows = rows
         self.cols = cols
@@ -19,6 +19,8 @@ class Figure(object):
         self.skip_na = skip_na
         if rows == 1:
             self.set_ax(1)
+        if warn: 
+            print("Use charting.figure instead. Lowercase f")
 
     def get_ax(self, axnum):
         if axnum not in self.graphers:

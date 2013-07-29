@@ -70,6 +70,7 @@ pd.Series.fplot_markers = series_plot_markers
 
 def figure(*args, **kwargs):
     """ create Figure and set as current """
+    kwargs['warn'] = False
     fig = Figure(*args, **kwargs)
     scf(fig)
     return fig
