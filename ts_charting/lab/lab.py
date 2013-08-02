@@ -40,6 +40,12 @@ class Station(object):
         self.add_layer(name, series, geom)
         self.figure.plot_markers(name, series, **kwargs)
 
+    def plot(self, label, series, **kwargs):
+        geom = {'type': 'line'}
+        geom.update(kwargs)
+        self.add_layer(label, series, geom)
+        self.figure.plot(label, series, **kwargs)
+
     def ohlc(self, df, width=0.3):
         # ohlc_df = normalize_ohlc(df)
         self.add_layer('candlestick', df, {'type': 'candlestick', 'width': .03})
