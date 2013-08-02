@@ -6,6 +6,7 @@ from matplotlib import pyplot as plt
 
 import ts_charting.styler as cstyler
 from ts_charting.formatter import TimestampFormatter, TimestampLocator
+from ts_charting.util import process_signal
 
 class Figure(object):
     def __init__(self, rows=1, cols=1, skip_na=True, warn=True):
@@ -278,16 +279,6 @@ class Grapher(object):
     def line(self, val, *args, **kwargs):
         """ print horizontal line """
         self.plot(None, val, *args, **kwargs)
-
-def process_signal(series, source):
-    """
-        Take any non 0/na value and changes it to corresponding value of source
-    """
-    temp = series.astype(float).copy()
-    temp[temp == 0] = None
-    temp, source = temp.align(source, join='left')
-    temp *= source
-    return temp
 
 def process_series(series, plot_index, series_index=None, method=None):
     """
