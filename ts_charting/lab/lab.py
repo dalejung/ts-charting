@@ -1,3 +1,11 @@
+"""
+    Conceptually a Lab is a JSON-able working area. 
+
+    A station, at least for now, maps to a Figure. 
+
+    I'm not 100% sure these abstractions are the way to go, or
+    if this even belongs in this module.
+"""
 from collections import OrderedDict
 from ts_charting import json
 
@@ -5,14 +13,25 @@ from ts_charting import Figure, scf
 from ts_charting.ohlc import normalize_ohlc
 from ts_charting.util import process_signal
 
+class FakeFigure(object):
+    """
+    Figure that does no plotting.
+    """
+    def __getattr__(self):
+        return self.fake_call
+
+    def fake_call(self, *args, **kwargs):
+        pass
+
 class Lab(object):
-    def __init__(self):
+    def __init__(self, draw=False):
+        self.draw = draw
         self.data = {}
         self.plots = {}
         self.stations = OrderedDict()
 
     def station(self, name):
-        station = Station(self, name)
+        station = Station(self, name, draw=self.draw)
         self.stations[name] = station
         scf(station)
         return station
@@ -23,10 +42,13 @@ class Lab(object):
         return json.to_json(dct)
 
 class Station(object):
-    def __init__(self, lab, name):
+    def __init__(self, lab, name, draw=False):
         self.lab = lab
         self.name = name
-        self.figure = Figure(1, warn=False)
+        if draw:
+            self.figure = Figure(1, warn=False)
+        else:
+            self.figure = FakeFigure()
         self.layers = []
 
     def plot_markers(self, name, series, yvalues=None, xindex=None, **kwargs):
