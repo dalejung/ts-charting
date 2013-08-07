@@ -17,7 +17,7 @@ class FakeFigure(object):
     """
     Figure that does no plotting.
     """
-    def __getattr__(self):
+    def __getattr__(self, name):
         return self.fake_call
 
     def fake_call(self, *args, **kwargs):
