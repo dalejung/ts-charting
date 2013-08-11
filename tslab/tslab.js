@@ -16572,7 +16572,7 @@ figure.prototype.axes_x = function(redraw) {
 
 module.exports.default_layout = default_layout;
 
-},{"./date/axis.js":26,"./figure.js":30,"d3":"+9wJHP"}],22:[function(require,module,exports){
+},{"./date/axis.js":26,"./figure.js":32,"d3":"+9wJHP"}],22:[function(require,module,exports){
 var d3 = require('d3');
 var figure = require('./figure.js')
 
@@ -16602,7 +16602,7 @@ figure.prototype.brush = function() {
 
 module.exports = fig_brush;
 
-},{"./figure.js":30,"d3":"+9wJHP"}],23:[function(require,module,exports){
+},{"./figure.js":32,"d3":"+9wJHP"}],23:[function(require,module,exports){
 function classcallable(cls) {
   /*
    * Replicate the __call__ magic method of python and let class instances
@@ -16744,7 +16744,7 @@ function Candlestick() {
 
 module.exports = callable(Candlestick);
 
-},{"./callable.js":23,"./layer.js":33,"d3":"+9wJHP"}],25:[function(require,module,exports){
+},{"./callable.js":23,"./layer.js":35,"d3":"+9wJHP"}],25:[function(require,module,exports){
 var d3 = require('d3');
 var _ = require('underscore');
 
@@ -16786,7 +16786,7 @@ function AxisContext() {
 
 module.exports = AxisContext;
 
-},{"d3":"+9wJHP","underscore":54}],26:[function(require,module,exports){
+},{"d3":"+9wJHP","underscore":"o6W2eo"}],26:[function(require,module,exports){
 var d3 = require('d3');
 var callable = require('../callable.js');
 var auto_bins = require('./datelocator.js').auto_bins;
@@ -16942,7 +16942,7 @@ module.exports.DatetimeIndex = function(vals, tz) {
   return new DatetimeIndex(vals, tz) 
 };
 
-},{"./dateoffset.js":29,"moment":52}],28:[function(require,module,exports){
+},{"./dateoffset.js":31,"moment":53}],28:[function(require,module,exports){
 var d3 = require('d3');
 var moment = require('moment');
 var to_offset = require('./dateoffset.js').to_offset;
@@ -17007,7 +17007,50 @@ function best_freq(start_date, end_date, bins) {
 module.exports.time_bins = time_bins;
 module.exports.auto_bins = auto_bins;
 
-},{"./dateindex.js":27,"./dateoffset.js":29,"d3":"+9wJHP","moment":52}],29:[function(require,module,exports){
+},{"./dateindex.js":27,"./dateoffset.js":31,"d3":"+9wJHP","moment":53}],29:[function(require,module,exports){
+module.exports.deferred_callback_router = function (ctx, deferred) {
+  var self = ctx;
+  var handlers = {}
+  handlers['output'] = defer_wrap(defer_output, ctx, deferred);
+  handlers['execute_reply'] = defer_wrap(defer_exec_reply, ctx, deferred);
+  return handlers;
+}
+
+var defer_output = function (msg_type, content, metadata, context, deferred) {
+  var data = {}
+  data['msg_type'] = msg_type
+  data['content'] = content
+  data['metadata'] = metadata
+  data['context'] = context
+  deferred.resolve(data);
+}
+
+var defer_exec_reply = function (content, parent, context, _deferred) {
+  /*
+   * Clean up if we didn't resolve with output. 
+   *
+   * Note: exec_reply should come after output is flushed. So if there is 
+   * any output, defer_output should have already been called. This is to
+   * handle code that doesn't result in output
+   */
+  var deferred = _deferred;
+  var state = deferred.promise.inspect()['state'];
+}
+
+var defer_wrap = function (func, ctx, _deferred) {
+  var self = ctx;
+  var deferred = _deferred;
+  return function() {
+    var context = self.context;
+    [].push.call(arguments, context);
+    [].push.call(arguments, deferred);
+    return func.apply(self, arguments);
+  }
+}
+
+},{}],"underscore":[function(require,module,exports){
+module.exports=require('o6W2eo');
+},{}],31:[function(require,module,exports){
 var moment = require('moment');
 
 function wrap(dt) {
@@ -17138,7 +17181,7 @@ function to_offset(freqstr) {
 
 module.exports.to_offset = to_offset;
 
-},{"moment":52}],30:[function(require,module,exports){
+},{"moment":53}],32:[function(require,module,exports){
 var d3 = require('d3');
 var _ = require('underscore');
 
@@ -17394,7 +17437,7 @@ module.exports = callable(Figure);
 require('./axes.js');
 require('./brush.js');
 
-},{"./axes.js":21,"./brush.js":22,"./callable.js":23,"./context.js":25,"./date/dateindex.js":27,"d3":"+9wJHP","id3/lib/view.js":40,"underscore":54}],"Np7oqH":[function(require,module,exports){
+},{"./axes.js":21,"./brush.js":22,"./callable.js":23,"./context.js":25,"./date/dateindex.js":27,"d3":"+9wJHP","id3/lib/view.js":44,"underscore":"o6W2eo"}],"Np7oqH":[function(require,module,exports){
 var Figure = require('./figure.js');
 var Line = require('./line.js');
 var Candlestick = require('./candlestick.js');
@@ -17413,7 +17456,7 @@ module.exports = {
   lab: lab
 }
 
-},{"./candlestick.js":24,"./figure.js":30,"./lab.js":32,"./layer.js":33,"./legend.js":34,"./line.js":35,"./marker.js":36}],32:[function(require,module,exports){
+},{"./candlestick.js":24,"./figure.js":32,"./lab.js":34,"./layer.js":35,"./legend.js":36,"./line.js":37,"./marker.js":38}],34:[function(require,module,exports){
 (function(){var _ = require('underscore');
 var Layer = require('./layer.js');
 var Figure = require('./figure.js');
@@ -17523,7 +17566,7 @@ module.exports.kernel_execute = kernel_execute;
 module.exports.grab_body = grab_body;
 
 })()
-},{"./figure.js":30,"./layer.js":33,"ipy_node":"/7ouXE","underscore":54}],33:[function(require,module,exports){
+},{"./figure.js":32,"./layer.js":35,"ipy_node":"/7ouXE","underscore":"o6W2eo"}],35:[function(require,module,exports){
 var d3 = require('d3');
 var _ = require('underscore');
 var svg = require('./svg.js');
@@ -17663,7 +17706,7 @@ Layer.prototype.view = function() {
   return new View().layer(this);
 }
 
-},{"./svg.js":37,"./view.js":40,"d3":"+9wJHP","underscore":54}],34:[function(require,module,exports){
+},{"./svg.js":39,"./view.js":44,"d3":"+9wJHP","underscore":"o6W2eo"}],36:[function(require,module,exports){
 var d3 = require('d3');
 var _ = require('underscore');
 var svg = require('./svg.js');
@@ -17715,7 +17758,7 @@ Legend.prototype.layer = function(layer) {
 
 module.exports = callable(Legend);
 
-},{"./callable.js":23,"./svg.js":37,"d3":"+9wJHP","underscore":54}],35:[function(require,module,exports){
+},{"./callable.js":23,"./svg.js":39,"d3":"+9wJHP","underscore":"o6W2eo"}],37:[function(require,module,exports){
 var d3 = require('d3');
 var callable = require('./callable.js');
 var Layer = require('./layer.js');
@@ -17816,7 +17859,7 @@ Line.prototype.legend_icon = function() {
 
 module.exports = callable(Line)
 
-},{"./callable.js":23,"./layer.js":33,"./util":38,"d3":"+9wJHP"}],36:[function(require,module,exports){
+},{"./callable.js":23,"./layer.js":35,"./util":41,"d3":"+9wJHP"}],38:[function(require,module,exports){
 var d3 = require('d3');
 var _ = require('underscore');
 
@@ -17996,7 +18039,7 @@ function rect(markers, xmap, ymap) {
 
 module.exports = callable(Marker)
 
-},{"./callable.js":23,"./layer.js":33,"./util":38,"d3":"+9wJHP","underscore":54}],37:[function(require,module,exports){
+},{"./callable.js":23,"./layer.js":35,"./util":41,"d3":"+9wJHP","underscore":"o6W2eo"}],39:[function(require,module,exports){
 var d3 = require('d3');
 
 var NS = 'http://www.w3.org/2000/svg';
@@ -18008,7 +18051,9 @@ function createElement(tag) {
 
 module.exports.createElement = createElement;
 
-},{"d3":"+9wJHP"}],38:[function(require,module,exports){
+},{"d3":"+9wJHP"}],"id3":[function(require,module,exports){
+module.exports=require('Np7oqH');
+},{}],41:[function(require,module,exports){
 var munging = require('./munging.js')
 
 module.exports = munging
@@ -18023,7 +18068,9 @@ function clone(obj) {
 }
 module.exports.clone = clone;
 
-},{"./munging.js":39}],39:[function(require,module,exports){
+},{"./munging.js":43}],"d3":[function(require,module,exports){
+module.exports=require('+9wJHP');
+},{}],43:[function(require,module,exports){
 var d3 = require('d3');
 
 function true_index(arr, config) {
@@ -18064,7 +18111,7 @@ res = true_index(mask, {});
 res = true_index(mask, {'start':1});
 res = where(series, mask);
 
-},{"d3":"+9wJHP"}],40:[function(require,module,exports){
+},{"d3":"+9wJHP"}],44:[function(require,module,exports){
 var d3 = require('d3');
 var callable = require('./callable.js');
 var clone = require('./util').clone
@@ -18119,7 +18166,7 @@ View.prototype.update = function() {
 
 module.exports = callable(View);
 
-},{"./callable.js":23,"./layer.js":33,"./util":38,"d3":"+9wJHP"}],"/7ouXE":[function(require,module,exports){
+},{"./callable.js":23,"./layer.js":35,"./util":41,"d3":"+9wJHP"}],"/7ouXE":[function(require,module,exports){
 var IPython = require('./lib/ipython.js');
 var Bridge = require('./lib/bridge.js');
 var Kernel = require('./lib/kernel.js');
@@ -18132,7 +18179,7 @@ ipy_node = {
 
 module.exports = ipy_node;
 
-},{"./lib/bridge.js":42,"./lib/ipython.js":44,"./lib/kernel.js":45}],42:[function(require,module,exports){
+},{"./lib/bridge.js":46,"./lib/ipython.js":47,"./lib/kernel.js":48}],46:[function(require,module,exports){
 var Q = require('q');
 var http = require('http');
 var Kernel = require('./kernel.js');
@@ -18221,48 +18268,7 @@ Bridge.prototype.attach = function(index, context) {
 
 module.exports = Bridge;
 
-},{"./kernel.js":45,"http":12,"inode":16,"q":53,"url":7}],43:[function(require,module,exports){
-module.exports.deferred_callback_router = function (ctx, deferred) {
-  var self = ctx;
-  var handlers = {}
-  handlers['output'] = defer_wrap(defer_output, ctx, deferred);
-  handlers['execute_reply'] = defer_wrap(defer_exec_reply, ctx, deferred);
-  return handlers;
-}
-
-var defer_output = function (msg_type, content, metadata, context, deferred) {
-  var data = {}
-  data['msg_type'] = msg_type
-  data['content'] = content
-  data['metadata'] = metadata
-  data['context'] = context
-  deferred.resolve(data);
-}
-
-var defer_exec_reply = function (content, parent, context, _deferred) {
-  /*
-   * Clean up if we didn't resolve with output. 
-   *
-   * Note: exec_reply should come after output is flushed. So if there is 
-   * any output, defer_output should have already been called. This is to
-   * handle code that doesn't result in output
-   */
-  var deferred = _deferred;
-  var state = deferred.promise.inspect()['state'];
-}
-
-var defer_wrap = function (func, ctx, _deferred) {
-  var self = ctx;
-  var deferred = _deferred;
-  return function() {
-    var context = self.context;
-    [].push.call(arguments, context);
-    [].push.call(arguments, deferred);
-    return func.apply(self, arguments);
-  }
-}
-
-},{}],44:[function(require,module,exports){
+},{"./kernel.js":48,"http":12,"inode":16,"q":54,"url":7}],47:[function(require,module,exports){
 (function(){/*
  * This would have easier except I didn't want to touch the source files.
  * The ipython stuff sets the IPython namespace with var which means that 
@@ -18284,7 +18290,7 @@ $.support.cors = true;
 module.exports = new Function(content + ";IPython.$ = $;return IPython;")();
 
 })()
-},{"fs":3,"jquery-browserify":51,"path":4}],45:[function(require,module,exports){
+},{"fs":3,"jquery-browserify":52,"path":4}],48:[function(require,module,exports){
 (function(global){var IPython = require('./ipython.js')
 var fs = require('fs');
 var Q = require('q');
@@ -18425,9 +18431,7 @@ Kernel.prototype.setup_iopub = function() {
 module.exports = Kernel;
 
 })(self)
-},{"./callbacks.js":43,"./ipython.js":44,"fs":3,"inode":16,"q":53}],"ipy_node":[function(require,module,exports){
-module.exports=require('/7ouXE');
-},{}],"jQuery-browserify":[function(require,module,exports){
+},{"./callbacks.js":29,"./ipython.js":47,"fs":3,"inode":16,"q":54}],"jQuery-browserify":[function(require,module,exports){
 module.exports=require('H8xrE/');
 },{}],"H8xrE/":[function(require,module,exports){
 (function(){// Uses Node, AMD or browser globals to create a module.
@@ -27764,11 +27768,9 @@ return jQuery;
 })( window ); }));
 
 })()
-},{}],"d3":[function(require,module,exports){
-module.exports=require('+9wJHP');
-},{}],"id3":[function(require,module,exports){
-module.exports=require('Np7oqH');
-},{}],51:[function(require,module,exports){
+},{}],"ipy_node":[function(require,module,exports){
+module.exports=require('/7ouXE');
+},{}],52:[function(require,module,exports){
 (function(){// Uses Node, AMD or browser globals to create a module.
 
 // If you want something that will work in other stricter CommonJS environments,
@@ -37103,7 +37105,7 @@ return jQuery;
 })( window ); }));
 
 })()
-},{}],52:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 (function(){// moment.js
 // version : 2.1.0
 // author : Tim Wood
@@ -38768,7 +38770,7 @@ return jQuery;
 }).call(this);
 
 })()
-},{}],53:[function(require,module,exports){
+},{}],54:[function(require,module,exports){
 (function(process){// vim:ts=4:sts=4:sw=4:
 /*!
  *
@@ -41074,7 +41076,7 @@ return Q;
 });
 
 })(require("__browserify_process"))
-},{"__browserify_process":18}],54:[function(require,module,exports){
+},{"__browserify_process":18}],"o6W2eo":[function(require,module,exports){
 (function(){//     Underscore.js 1.5.1
 //     http://underscorejs.org
 //     (c) 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -42323,7 +42325,7 @@ return Q;
 }).call(this);
 
 })()
-},{}],55:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 ipy_node = require('ipy_node');
 _ = require('underscore');
 d3 = require('d3');
@@ -42331,5 +42333,5 @@ id3 = require('id3');
 jQuery = require('jquery-browserify');
 window.jQuery = jQuery
 
-},{"d3":"+9wJHP","id3":"Np7oqH","ipy_node":"/7ouXE","jquery-browserify":51,"underscore":54}]},{},[55])
+},{"d3":"+9wJHP","id3":"Np7oqH","ipy_node":"/7ouXE","jquery-browserify":52,"underscore":"o6W2eo"}]},{},[56])
 ;
