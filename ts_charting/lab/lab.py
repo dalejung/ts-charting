@@ -10,7 +10,6 @@ from collections import OrderedDict
 from ts_charting import json
 
 from ts_charting import Figure, scf
-from ts_charting.ohlc import normalize_ohlc
 from ts_charting.util import process_signal
 
 class FakeFigure(object):
