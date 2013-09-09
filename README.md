@@ -15,3 +15,9 @@ Example Notebooks
 * Aligning x-axis with sharex
 * Highlighting horizontal spans
 * Custom tick locator
+
+d3.js
+======
+
+Been working on a `d3.js` adapter: [id3](https://github.com/dalejung/id3)
+
