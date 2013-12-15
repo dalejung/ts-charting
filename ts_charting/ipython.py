@@ -7,7 +7,15 @@ from ts_charting import reset_figure
 
 IN_NOTEBOOK = True
 instance = IPython.Application._instance
-if isinstance(instance, IPython.frontend.terminal.ipapp.TerminalIPythonApp):
+
+# IPython.frontend was flattened so its submodule now live in the root
+# namespace. i.e. IPython.frontend.terminal -> IPython.terminal
+if hasattr(IPython, 'frontend'):
+    terminal = IPython.frontend.terminal.ipapp.TerminalIPythonApp
+else:
+    terminal = IPython.terminal.ipapp.TerminalIPythonApp
+
+if isinstance(instance, terminal):
     IN_NOTEBOOK = False
 
 def figsize(width, height):
