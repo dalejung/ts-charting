@@ -1,4 +1,7 @@
-from itertools import izip
+try:
+    from itertools import izip
+except ImportError:
+    izip = zip
 
 import pandas as pd
 import numpy as np

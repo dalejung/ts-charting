@@ -4,7 +4,7 @@ from IPython.display import JSON
 
 def dataframe_json(df):
     data = {}
-    for k, v in df.iteritems():
+    for k, v in df.items():
         data[k] = v.values
     data['index'] = df.index
     data['_pandas_type'] = 'dataframe';
@@ -35,7 +35,7 @@ def to_json(obj):
 
     if isinstance(obj, dict):
         jdict = {}
-        for k, v in obj.iteritems():
+        for k, v in obj.items():
             jdict[k] = to_json(v)
         return json_dict(jdict)
 
@@ -46,7 +46,7 @@ def to_json(obj):
 
 def json_dict(dct):
     items = []
-    for k, v in dct.iteritems():
+    for k, v in dct.items():
         items.append("\"{k}\":{v}".format(k=k, v=v))
     return "{" + ','.join(items) + "}" 
 

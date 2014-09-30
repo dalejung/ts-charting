@@ -9,7 +9,7 @@ def _gen_labels(labels, names=None):
         names = labels.names
     if np.isscalar(labels[0]):
         labels = [(l,) for l in labels]
-    zips = [zip(names, l) for l in labels]
+    zips = [list(zip(names, l)) for l in labels]
     new_labels = [', '.join(['{1}'.format(*m) for m in z]) for z in zips]
     return new_labels, names
 

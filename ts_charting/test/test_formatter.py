@@ -5,7 +5,6 @@ import pandas as pd
 import pandas.util.testing as tm
 
 import ts_charting.formatter as formatter
-reload(formatter)
 
 plot_index = pd.date_range(start="2000-1-1", freq="B", periods=10000)
 class TestTimestampLocator(TestCase):
