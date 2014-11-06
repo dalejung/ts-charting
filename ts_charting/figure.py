@@ -55,14 +55,14 @@ class Figure(object):
         # TODO take a param of ax numbers to align
         left = []
         right = []
-        for grapher in self.graphers.values():
+        for grapher in list(self.graphers.values()):
             if grapher.index is None:
                 continue
             l, r = grapher.ax.get_xlim()
             left.append(l)
             right.append(r)
 
-        for grapher in self.graphers.values():
+        for grapher in list(self.graphers.values()):
             if grapher.index is None:
                 continue
             grapher.ax.set_xlim(min(left), max(right)) 
@@ -142,7 +142,7 @@ class Grapher(object):
             style_dict = next(styler)
             # note we do it this way so explicit args passed in kwargs
             # override style_dict
-            kwargs = dict(style_dict.items() + kwargs.items())
+            kwargs = dict(list(style_dict.items()) + list(kwargs.items()))
 
         plot_index = self.index
         if self.sharex is not None:
@@ -185,7 +185,7 @@ class Grapher(object):
         consolidate the legends from all axes and merge into one
         """
         lines, labels = self.ax.get_legend_handles_labels()
-        for k, ax in self.yaxes.iteritems():
+        for k, ax in list(self.yaxes.items()):
             new_lines, new_labels = ax.get_legend_handles_labels()
             lines = lines + new_lines
             labels = labels + new_labels
@@ -202,7 +202,7 @@ class Grapher(object):
         def make_patch_spines_invisible(ax):
             ax.set_frame_on(True)
             ax.patch.set_visible(False)
-            for sp in ax.spines.itervalues():
+            for sp in list(ax.spines.values()):
                 sp.set_visible(False)
 
         size = len(self.yaxes)
@@ -254,7 +254,7 @@ class Grapher(object):
 
     def set_xticks(self, xticks):
         # freq
-        if isinstance(xticks, basestring):
+        if isinstance(xticks, str):
             self.locator.freq = xticks
             self.locator.set_xticks(None)
         else:

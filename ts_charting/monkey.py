@@ -13,7 +13,7 @@ def merge(base, mixin, overrides=None):
         overrides = []
 
 
-    for name, meth in mixin.__dict__.items():
+    for name, meth in list(mixin.__dict__.items()):
         if name.startswith('__') and name not in overrides:
             continue
 
@@ -31,7 +31,7 @@ def mixin(base, overrides=None):
         mixin_name =  mixin.__name__
         _mixins_ = getattr(base, '_mixins_', [])
         if mixin_name in _mixins_:
-            print('{mixin_name} already mixed'.format(mixin_name=mixin_name))
+            print(('{mixin_name} already mixed'.format(mixin_name=mixin_name)))
             return False
         _mixins_.append(mixin_name)
         setattr(base, '_mixins_', _mixins_)
