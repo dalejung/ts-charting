@@ -6,7 +6,7 @@ except ImportError:
 import pandas as pd
 import numpy as np
 
-from matplotlib.finance import candlestick
+from matplotlib.finance import candlestick_ochl as candlestick
 
 from ts_charting import Figure, Grapher, gcf
 from ts_charting.monkey import mixin
