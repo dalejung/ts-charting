@@ -2,7 +2,7 @@ import pandas as pd
 from pandas.util.decorators import Appender
 
 from ts_charting import Figure
-import ts_charting.styler as cstyler
+import ts_charting.styles as cstyler
 
 CURRENT_FIGURE = None
 

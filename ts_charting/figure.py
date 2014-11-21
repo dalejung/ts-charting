@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 
-import ts_charting.styler as cstyler
+import ts_charting.styles as cstyler
 from ts_charting.formatter import TimestampFormatter, TimestampLocator
 from ts_charting.util import process_signal
 
