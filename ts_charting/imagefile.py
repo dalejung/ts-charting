@@ -15,15 +15,14 @@ from matplotlib.backends.backend_pdf import PdfPages
 import ts_charting as charting
 
 def save_to_pdf(file, figs=None):
-    pp = PdfPages(file)
+    with PdfPages(file) as pdf:
 
-    if figs is None:
-        figs = pylabtools.getfigs()
+        if figs is None:
+            figs = pylabtools.getfigs()
 
-    for fig in figs:
-        fig.savefig(pp, format='pdf')
+        for fig in figs:
+            fig.savefig(pdf, format='pdf')
 
-    pp.close()
     close_figures()
 
 def plot_pdf(fn=None, open=True):

@@ -16,8 +16,12 @@ def reset_figure(*args):
 
 def gcf(reset=False):
     global CURRENT_FIGURE
-    if CURRENT_FIGURE is None or reset:
-        CURRENT_FIGURE = Figure(1)
+    if reset:
+        CURRENT_FIGURE = None
+        return CURRENT_FIGURE
+
+    if CURRENT_FIGURE is None:
+        CURRENT_FIGURE = figure(1)
     return CURRENT_FIGURE
 
 def scf(figure):
