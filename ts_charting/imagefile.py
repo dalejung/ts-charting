@@ -29,6 +29,11 @@ def plot_pdf(fn=None, open=True):
     if fn is None:
         file = tempfile.NamedTemporaryFile(suffix='.pdf', delete=False)
         fn = file.name
+
+    dir, file = os.path.split(fn)
+    if dir:
+        mkdir_p(dir)
+
     save_to_pdf(fn)
     if open:
         os.system('open '+fn)
